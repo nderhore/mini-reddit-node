@@ -1,59 +1,77 @@
-let links = [
-    { id: 1, title: 'Super article sur Node.js', url: 'https://exemple.com/node', description: 'Un bon tuto.' },
-    { id: 2, title: 'React Hooks', url: 'https://exemple.com/react', description: 'Tout sur les hooks.' }
-];
-let nextId = 3;
+const Link = require('../models/Link');
 
 // GET
-exports.getAllLinks = (req,res) => {
-    res.status(200).json(links);
+exports.getAllLinks = async (req,res) => {
+    try{
+        //.sort() => trie les résultats (ici, les plus récent en premier)
+        const links = await Link.find().sort({createdAt: -1});
+        res.status(200).json(links);
+    } catch(error){
+        res.status(500).json({message: 'Erreur serveur : ' + error.message});
+    }
 }
 
 // GET /:id -> je veux le link avec l'id 1 "un"
-exports.getLinkById = (req, res) => {
-    const link = links.find( l => l.id === parseInt(req.params.id) );
-    if (!link){
-        return res.status(404).json({ message: 'Link not found' });
+exports.getLinkById = async (req, res) => {
+    try{
+            const link = await Link.findById(req.params.id);
+            if (!link){
+                return res.status(404).json({ message: 'Link not found' });
+            }
+            res.status(200).json(link);
+        } catch(error){
+    res.status(500).json({message: 'Erreur serveur : ' + error.message});
     }
-    res.status(200).json(link);
 }
 
+
 // POST = Creation d'un link
-exports.createLink = (req, res) => {
+exports.createLink = async (req, res) => {
     const { title, url, description } = req.body;
-    if (!title || !url){
-        return res.status(400).json({message: 'Title and Url are required'});
-    }
-    const newLink = {
-        id: nextId++,
+
+    const newLink = new Link({
         title: title,
         url: url,
         description: description
+    });
+
+    try{
+        const savedLink = await newLink.save();
+        res.status(201).json(newLink);
+    } catch(error) {
+        res.status(400).json({message: 'Erreur de validation : ' + error.message});
     }
-    links.push(newLink);
-    res.status(201).json(newLink);
 }
 
 // PUT = Modification d'un Link /:id
-exports.updateLinkById = (req, res) => {
-    const link = links.find( l => l.id === parseInt(req.params.id) );
-    if (!link){
-        return res.status(404).json({ message: 'Link not found' });
+exports.updateLinkById = async (req, res) => {
+    try{
+        const updatedLink = await Link.findByIdAndUpdate(
+            req.params.id, // ID du document à mettre à jour
+            req.body, //Données à mettre à jour
+            {
+                new: true,
+                runValidators: true
+            });
+        if (!updatedLink){
+            return res.status(404).json({ message: 'Link not found' });
+        }
+        res.status(200).json(updatedLink);
+    } catch(error){
+        res.status(400).json({message: 'Erreur de validation : ' + error.message});
     }
-    link.title = req.body.title || link.title;
-    link.url = req.body.url || link.url;
-    link.description = req.body.description || link.description;
-
-    res.status(200).json(link);
 }
 
 // DELETE /:id
-exports.deleteLinkById = (req, res) => {
-    const linkIndex = links.findIndex(l => l.id === parseInt(req.params.id));
-    if(linkIndex === -1){
-        return res.status(404).json({ message: 'Link not found' });
+exports.deleteLinkById = async (req, res) => {
+    try {
+        const link = await Link.findByIdAndDelete(req.params.id);
+        if (!link) {
+            return res.status(404).json({message: 'Link not found'});
+        }
+        res.status(204).send();
+    } catch (error) {
+        res.status(500).json({message: 'Erreur serveur : ' + error.message});
     }
-    links.splice(linkIndex,1);
-    res.status(204).send();
 }
 

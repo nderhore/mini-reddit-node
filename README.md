@@ -26,6 +26,7 @@ Avant de commencer, assurez-vous d'avoir installé sur votre machine :
   * [Node.js](https://nodejs.org/) (v18.x ou supérieure)
   * [Yarn](https://yarnpkg.com/getting-started/install) (v1.x ou v3.x)
   * Une base de données [MongoDB](https://www.mongodb.com/try/download/community) (locale) ou un compte cloud [MongoDB Atlas](https://www.mongodb.com/cloud/atlas).
+  * [Docker]()
 
 ## Installation et Lancement
 
@@ -60,7 +61,18 @@ Avant de commencer, assurez-vous d'avoir installé sur votre machine :
 
     > **Important :** Le fichier `.env` est listé dans `.gitignore` et ne doit **jamais** être partagé ou versionné.
 
-4.  **Lancez le serveur**
+4. **Demarrez la base mongoDB (via docker) => facultatif**
+    ```bash
+   docker run -d --name le-hub-mongo \
+   -p 27017:27017 \
+   -e MONGO_INITDB_ROOT_USERNAME=hubadmin \
+   -e MONGO_INITDB_ROOT_PASSWORD=toto \
+   -e MONGO_INITDB_DATABASE=mini-reddit \
+   -v le-hub-mongo-data:/data/db \
+   mongo:8.2.1
+    ```
+   
+5. **Lancez le serveur**
     Pour démarrer le serveur en mode développement (avec redémarrage automatique à chaque modification grâce à `nodemon`) :
 
     ```bash

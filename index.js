@@ -1,5 +1,7 @@
 const express = require('express');
 const app = express();
+const dotenv = require('dotenv');
+const connectDB = require('./config/db');
 
 //Import des routes
 const linkRoutes = require('./routes/links');
@@ -17,6 +19,9 @@ app.get('/', (req, res) => {
 
 // "Monter" les routes des liens
 app.use('/api/links', linkRoutes);
+
+dotenv.config();
+connectDB();
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT,() => {
