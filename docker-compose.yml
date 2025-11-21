@@ -1,0 +1,29 @@
+services:
+  app:
+    container_name: mini-reddit-api
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - PORT=3000
+        - MONGO_URI=mongodb://hubadmin:toto@mongo/mini-reddit?retryWrites=true&authSource=admin
+        - JWT_SECRET=62f56fc65225c9e52c4a3ec05d36e949
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mongo
+    restart: unless-stopped
+
+  mongo:
+    container_name: mini-reddit-mongo
+    image: mongo:8.2.1
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=hubadmin
+      - MONGO_INITDB_ROOT_PASSWORD=toto
+      - MONGO_INITDB_DATABASE=mini-reddit
+    volumes:
+      - mini-reddit-mongo-data:/data/db
+    restart: unless-stopped
+
+volumes:
+  mini-reddit-mongo-data:
