@@ -5,6 +5,7 @@ const connectDB = require('./config/db');
 
 //Import des routes
 const linkRoutes = require('./routes/links');
+const authRoutes = require('./routes/auth');
 
 // Logger (middleware : effectué avant le traitement de la requête reçue)
 app.use((req, res, next) => {
@@ -19,6 +20,7 @@ app.get('/', (req, res) => {
 
 // "Monter" les routes des liens
 app.use('/api/links', linkRoutes);
+app.use('/api/auth', authRoutes);
 
 dotenv.config();
 connectDB();
